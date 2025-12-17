@@ -4,544 +4,790 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TeamCMD</title>
-
   <style>
     body{
-      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-      background:#f0f2f5;
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif;
+      background-color:#f0f2f5;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      min-height:100vh;
       margin:0;
-      padding:24px;
+      padding:28px 0;
+      overflow-y:auto;
     }
     .container{
-      max-width:1100px;
-      margin:0 auto;
       background:#fff;
-      padding:20px;
+      padding:24px;
       border-radius:12px;
       box-shadow:0 4px 12px rgba(0,0,0,.1);
+      width:100%;
+      max-width:1100px;
     }
-    h1{margin:0 0 12px 0;}
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    h1{ margin:0; color:#222; font-size:22px; }
+
+    .mic-button{
+      background:#f0f0f0;
+      border:1px solid #ddd;
+      border-radius:999px;
+      padding:10px 14px;
+      cursor:pointer;
+      transition:background-color .2s,border-color .2s;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .mic-dot{ width:10px;height:10px;border-radius:50%; background:#777; }
+    .mic-button.active{ background:#ffebee; border-color:#ef9a9a; }
+    .mic-button.active .mic-dot{ background:#d32f2f; }
 
     .grid{
       display:grid;
-      grid-template-columns:1.1fr .9fr;
+      grid-template-columns: 1.1fr .9fr;
       gap:14px;
+      align-items:start;
     }
-    @media (max-width: 980px){
-      .grid{grid-template-columns:1fr;}
-    }
+    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
 
     .card{
       border:1px solid #e9ecef;
       border-radius:10px;
       background:#fff;
+      overflow:hidden;
     }
     .card h2{
       margin:0;
-      padding:12px;
+      padding:12px 14px;
       font-size:15px;
       border-bottom:1px solid #eee;
+      color:#222;
       background:#fafafa;
     }
-    .body{padding:12px;}
+    .card .body{ padding:12px 14px; }
 
     textarea{
       width:100%;
-      height:280px;
+      height:260px;
       padding:12px;
-      font-size:14px;
-      line-height:1.55;
-      border-radius:8px;
       border:1px solid #ccc;
-      resize:vertical;
+      border-radius:8px;
       box-sizing:border-box;
+      font-size:14px;
+      line-height:1.5;
+      resize:vertical;
       white-space:pre-wrap;
     }
 
-    .row{
+    .btn-row{
       display:flex;
       gap:10px;
       margin-top:10px;
-      flex-wrap:wrap;
     }
-    button{
-      padding:10px 12px;
+    button.action{
+      flex:1;
+      padding:12px 10px;
       border:none;
       border-radius:8px;
-      font-weight:700;
       cursor:pointer;
-      background:#6c757d;
+      font-weight:700;
       color:#fff;
+      background:#6c757d;
+      transition:background-color .2s;
     }
-    button:hover{filter:brightness(.95);}
+    button.action:hover{ background:#5a6268; }
 
     .alert{
-      margin-top:12px;
-      padding:12px;
-      border-radius:8px;
-      border:1px solid #ddd;
+      margin:14px 0 0 0;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid #e9ecef;
       background:#f8f9fa;
+      color:#222;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .alert.good{background:#e8f5e9;border-color:#a5d6a7;}
-    .alert.warn{background:#fff3e0;border-color:#ffcc80;}
-    .alert.danger{background:#ffebee;border-color:#ef9a9a;}
-
+    .alert.good{ border-color:#c8e6c9; background:#e8f5e9; }
+    .alert.warn{ border-color:#ffe0b2; background:#fff3e0; }
+    .alert.danger{ border-color:#ffcdd2; background:#ffebee; }
+    .alert .title{ font-weight:800; }
     .badge{
-      display:inline-block;
-      padding:4px 10px;
+      padding:6px 10px;
       border-radius:999px;
-      font-size:12px;
       font-weight:800;
+      font-size:12px;
       color:#fff;
-      background:#777;
-      vertical-align:middle;
+      background:#607d8b;
+      white-space:nowrap;
     }
-    .badge.good{background:#2e7d32;}
-    .badge.warn{background:#ef6c00;}
-    .badge.danger{background:#c62828;}
+    .badge.good{ background:#2e7d32; }
+    .badge.warn{ background:#ef6c00; }
+    .badge.danger{ background:#c62828; }
 
     pre{
-      background:#f8f9fa;
-      border:1px solid #ddd;
-      border-radius:8px;
-      padding:12px;
-      max-height:420px;
-      overflow:auto;
-      font-size:13.5px;
-      line-height:1.6;
       margin:0;
       white-space:pre-wrap;
       word-break:break-word;
-    }
-
-    canvas{
-      width:100%;
-      height:240px;
-      border:1px solid #ddd;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:12.5px;
+      color:#333;
+      background:#f8f9fa;
+      border:1px solid #e9ecef;
       border-radius:8px;
-      display:block;
-      background:#fff;
+      padding:12px;
+      max-height:380px;
+      overflow:auto;
     }
 
+    .statusline{
+      margin: 0 0 14px 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #e9ecef;
+      background:#f8f9fa;
+      color:#333;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .statusline.ok{ border-color:#c8e6c9; background:#e8f5e9; }
+    .statusline.bad{ border-color:#ffcdd2; background:#ffebee; }
+
+    .chart-controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:10px;
+      align-items:center;
+    }
     .chip{
-      padding:6px 10px;
-      border-radius:999px;
       border:1px solid #ddd;
-      font-size:12px;
+      background:#fff;
+      padding:7px 10px;
+      border-radius:999px;
       cursor:pointer;
       font-weight:800;
+      font-size:12px;
+      color:#333;
       user-select:none;
-      background:#fff;
     }
     .chip.active{
       background:#111;
-      color:#fff;
       border-color:#111;
+      color:#fff;
     }
-
     .legend{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
       margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid #eee;
     }
     .legend-item{
       display:flex;
       align-items:center;
       gap:6px;
       font-size:12px;
+      color:#333;
+      border:1px solid #eee;
+      background:#fafafa;
+      padding:6px 8px;
+      border-radius:999px;
     }
     .swatch{
       width:12px;height:12px;border-radius:3px;
       border:1px solid rgba(0,0,0,.2);
+    }
+
+    canvas{
+      width:100%;
+      height:220px;
+      border:1px solid #e9ecef;
+      border-radius:8px;
+      background:#fff;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>TeamCMD</h1>
+    <header>
+      <h1>TeamCMD</h1>
+      <!-- <button class="mic-button" id="mic-btn" title="클릭: STT 시작/중지">
+        <span class="mic-dot"></span>
+        <span id="mic-label">STT 시작</span>
+      </button> -->
+    </header>
+
+    <div class="statusline" id="statusline">초기화 중...</div>
 
     <div class="grid">
       <div class="card">
-        <h2>대화 입력 (Enter = 분석, Shift+Enter = 줄바꿈)</h2>
+        <h2>대화 입력</h2>
         <div class="body">
-          <textarea id="text-input" placeholder="예시(둘 다 가능)
-[화자1] 안녕?
-화자2: 안녕!"></textarea>
+          <textarea id="text-input" placeholder="화자1: 너 왜 또 늦었어?&#10;화자2: 미안해, 차가 막혔어.&#10;"></textarea>
 
-          <div class="row">
-            <button id="reset-btn" type="button">새 대화 시작</button>
+          <div class="btn-row">
+            <button class="action" id="reset-btn">새로운 대화</button>
           </div>
 
           <div class="alert" id="conflict-alert">
-            <b id="alert-title">갈등 가능성: 대기</b>
-            <span class="badge" id="alert-badge">대기</span>
-            <div id="alert-detail" style="margin-top:6px;"></div>
+            <div>
+              <div class="title" id="alert-title">갈등 가능성: 측정 대기</div>
+              <div id="alert-detail"></div>
+            </div>
+            <div class="badge" id="alert-badge">대기</div>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2>감정 변화 그래프 (화자별 보기)</h2>
+        <h2>감정 변화 추이</h2>
         <div class="body">
-          <div id="speaker-buttons" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
-          <canvas id="trend-canvas" width="900" height="360"></canvas>
+          <div class="chart-controls">
+            <span style="font-weight:800;font-size:12px;color:#333;">화자:</span>
+            <div id="speaker-buttons" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+          </div>
+
+          <canvas id="trend-canvas" width="980" height="320"></canvas>
+
           <div class="legend" id="legend"></div>
         </div>
       </div>
     </div>
 
     <div class="card" style="margin-top:14px;">
-      <h2>분석 결과 (각 발화별 감정 Top 3)</h2>
+      <h2>대화 기록 및 분석 결과</h2>
       <div class="body">
-        <pre id="results-output">분석 대기 중...</pre>
+        <pre id="results-output">불러오는 중...</pre>
       </div>
     </div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const textarea = document.getElementById('text-input');
-    const output = document.getElementById('results-output');
+    document.addEventListener('DOMContentLoaded', function () {
+      const textInput = document.getElementById('text-input');
+      const resetBtn = document.getElementById('reset-btn');
+      const resultsOutput = document.getElementById('results-output');
 
-    const alertBox = document.getElementById('conflict-alert');
-    const alertTitle = document.getElementById('alert-title');
-    const alertBadge = document.getElementById('alert-badge');
-    const alertDetail = document.getElementById('alert-detail');
+      const micBtn = document.getElementById('mic-btn');
+      const micLabel = document.getElementById('mic-label');
 
-    const resetBtn = document.getElementById('reset-btn');
+      const statusline = document.getElementById('statusline');
 
-    const speakerBtns = document.getElementById('speaker-buttons');
-    const legend = document.getElementById('legend');
-    const canvas = document.getElementById('trend-canvas');
-    const ctx = canvas.getContext('2d');
+      const alertBox = document.getElementById('conflict-alert');
+      const alertTitle = document.getElementById('alert-title');
+      const alertDetail = document.getElementById('alert-detail');
+      const alertBadge = document.getElementById('alert-badge');
 
-    const COLORS = [
-      '#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd',
-      '#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf',
-      '#2f4b7c','#f95d6a','#ffa600'
-    ];
+      const canvas = document.getElementById('trend-canvas');
+      const ctx = canvas.getContext('2d');
 
-    let lastResult = null;
-    let selectedSpeaker = null;
+      const speakerButtonsEl = document.getElementById('speaker-buttons');
+      const legendEl = document.getElementById('legend');
 
-    function getApiBase() {
-      // 파일로 열면 origin이 "null"일 수 있음 → 로컬 서버로 fallback
-      if (!window.location.origin || window.location.origin === 'null') {
-        return 'http://127.0.0.1:5000';
-      }
-      return window.location.origin;
-    }
+      const API_URL = window.location.href.replace(/\/+$/,'');
+      const WHISPER_WS_URL = 'ws://127.0.0.1:8000/asr';
+      const AUTO_ANALYZE_DEBOUNCE_MS = 900;
 
-    function normalizeSpeakerLabel(s) {
-      let out = (s == null ? '' : String(s)).trim();
-      if (!out) return 'Speaker';
-      // 서버 결과가 "[Speaker1]" 이런 형태일 때 괄호 제거
-      if (out.startsWith('[') && out.endsWith(']') && out.length >= 2) {
-        out = out.slice(1, -1).trim();
-      }
-      return out || 'Speaker';
-    }
+      let lastAnalysisBlock = '--- 분석 결과 ---\n(아직 없음)\n';
 
-    // 입력 한 줄 파싱:
-    // 1) [화자] 내용  -> speaker="화자", text="내용"
-    // 2) 화자: 내용   -> speaker="화자", text="내용"
-    // 3) 그 외        -> speaker="Manual", text=원문
-    function parseLineToSpeakerText(line) {
-      let content = (line || '').trim();
-      if (!content) return null;
+      let sttWs = null;
+      let sttStream = null;
+      let sttRecorder = null;
+      let sttIsRunning = false;
 
-      let speaker = 'Manual';
+      let debounceTimer = null;
+      let lastSnapshotText = '';
 
-      const mBracket = content.match(/^\[([^\]]+)\]\s*(.*)$/);
-      if (mBracket) {
-        speaker = (mBracket[1] || '').trim() || 'Manual';
-        content = (mBracket[2] || '').trim();
-        return { speaker: speaker, text: content };
+      let lastResultObj = null;
+      let selectedSpeaker = null;
+
+      const COLOR_PALETTE = [
+        '#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd',
+        '#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf',
+        '#0b3d91','#c2185b','#00695c','#f9a825','#5e35b1'
+      ];
+
+      function setStatus(text, ok) {
+        statusline.textContent = text;
+        statusline.classList.remove('ok', 'bad');
+        if (ok === true) statusline.classList.add('ok');
+        if (ok === false) statusline.classList.add('bad');
       }
 
-      const mColon = content.match(/^([^:]{1,40})\s*:\s*(.*)$/);
-      if (mColon) {
-        speaker = (mColon[1] || '').trim() || 'Manual';
-        content = (mColon[2] || '').trim();
-        return { speaker: speaker, text: content };
+      function safeJsonParse(s) {
+        try { return JSON.parse(s); } catch (e) { return null; }
       }
 
-      return { speaker: speaker, text: content };
-    }
-
-    // textarea 전체를 lines[]로 변환 (서버 /analyze_snapshot 입력 형식)
-    function parseTextareaToLines(text) {
-      const raw = String(text || '');
-      const rows = raw.split('\n');
-      const out = [];
-      for (let i = 0; i < rows.length; i++) {
-        const parsed = parseLineToSpeakerText(rows[i]);
-        if (!parsed) continue;
-        if (!parsed.text || !parsed.text.trim()) continue;
-        out.push({ speaker: normalizeSpeakerLabel(parsed.speaker), text: parsed.text.trim() });
-      }
-      return out;
-    }
-
-    function topNEmotions(emoObj, n) {
-      const entries = Object.entries(emoObj || {});
-      entries.sort((a,b) => (b[1]||0) - (a[1]||0));
-      return entries.slice(0, n);
-    }
-
-    function renderSummary(result) {
-      const logs = (result && result.per_utt_log) ? result.per_utt_log : [];
-      if (!logs.length) {
-        output.textContent = '분석 결과 없음';
-        return;
+      function speakerLabelFromId(speakerId) {
+        if (typeof speakerId === 'number') return 'Speaker' + String(speakerId);
+        if (typeof speakerId === 'string') return speakerId;
+        return 'Speaker';
       }
 
-      let text = '';
-      for (let i = 0; i < logs.length; i++) {
-        const l = logs[i];
-        const sp = normalizeSpeakerLabel(l.speaker);
-        const utt = (l.text || '').toString();
+      // textarea에 다시 쓸 때도 "화자: 발화문" 형식으로 통일
+      function buildTextareaTextFromLines(lines) {
+        const filtered = lines.filter(function (l) {
+          return l && typeof l.text === 'string' && l.text.trim().length > 0;
+        });
+        if (filtered.length === 0) return '';
+        return filtered.map(function (l) {
+          return speakerLabelFromId(l.speaker) + ': ' + l.text.trim();
+        }).join('\n');
+      }
 
-        text += `화자 ${sp}\n`;
-        text += `발화: ${utt}\n`;
-        text += `주요 감정(Top 3):\n`;
+      function formatTime(d) {
+        const hh = String(d.getHours()).padStart(2,'0');
+        const mm = String(d.getMinutes()).padStart(2,'0');
+        const ss = String(d.getSeconds()).padStart(2,'0');
+        return hh + ':' + mm + ':' + ss;
+      }
 
-        const top3 = topNEmotions(l.negative_emotions || {}, 3);
-        if (!top3.length) {
-          text += '  - (감정 정보 없음)\n\n';
-          continue;
+      function getFutureAlertsObj(resultObj) {
+        if (!resultObj || typeof resultObj !== 'object') return null;
+        const candidates = [
+          resultObj.future_alerts,
+          resultObj['future-alerts'],
+          resultObj['future-alert'],
+          resultObj.futureAlerts
+        ];
+        for (let i = 0; i < candidates.length; i++) {
+          const v = candidates[i];
+          if (v && typeof v === 'object') return v;
         }
-        for (let j = 0; j < top3.length; j++) {
-          const k = top3[j][0];
-          const v = Number(top3[j][1] || 0);
-          text += `  - ${k}: ${v.toFixed(1)}%\n`;
+        return null;
+      }
+
+      function normalizeSpeakerKey(s) {
+        const raw = String(s || '').trim();
+        const m = raw.match(/^\[([^\]]+)\]$/);
+        if (m && m[1]) return m[1].trim();
+        return raw;
+      }
+
+      function summarizeFutureAlerts(futureAlerts) {
+        if (!futureAlerts || typeof futureAlerts !== 'object') return { total: 0, bySpeaker: {}, lines: [] };
+        const bySpeaker = {};
+        const lines = [];
+        let total = 0;
+        for (const [spkRaw, arr] of Object.entries(futureAlerts)) {
+          const spk = normalizeSpeakerKey(spkRaw);
+          const list = Array.isArray(arr) ? arr : [];
+          bySpeaker[spk] = list;
+          total += list.length;
+          list.forEach(function (msg) {
+            // future_alerts 출력도 "화자: 메시지"로 통일
+            lines.push(spk + ': ' + msg);
+          });
         }
-        text += '\n';
+        return { total, bySpeaker, lines };
       }
 
-      output.textContent = text;
-    }
+      function decideConflictFromServer(resultObj) {
+        const futureAlertsObj = getFutureAlertsObj(resultObj);
+        const future = summarizeFutureAlerts(futureAlertsObj);
 
-    function updateConflict(result) {
-      const fa = (result && result.future_alerts) ? result.future_alerts : {};
-      const keys = Object.keys(fa || {});
-      const alerts = [];
-      for (let i = 0; i < keys.length; i++) {
-        const k = keys[i];
-        const arr = fa[k];
-        if (Array.isArray(arr)) {
-          for (let j = 0; j < arr.length; j++) alerts.push({ speaker: k, msg: arr[j] });
+        const spikes = (resultObj && resultObj.spikes_by_speaker && typeof resultObj.spikes_by_speaker === 'object')
+          ? resultObj.spikes_by_speaker
+          : {};
+        const hasSpikes = Object.keys(spikes).length > 0;
+
+        const alertedSpeakers = Object.keys(future.bySpeaker).filter(function (spk) {
+          const arr = future.bySpeaker[spk];
+          return Array.isArray(arr) && arr.length > 0;
+        });
+
+        let level = 'good';
+        let label = '정상';
+        let title = '갈등 가능성: 낮음';
+        let detail = '서버 예측 기준으로 급격한 갈등 신호가 감지되지 않았습니다.';
+
+        if (future.total > 0 || hasSpikes) {
+          level = 'warn';
+          label = '경고';
+          title = '갈등 가능성: 감지됨';
+          detail = '서버 예측(future_alerts / spikes)에 따라 갈등 위험 신호가 존재합니다.';
         }
-      }
 
-      alertBox.className = 'alert';
-      alertBadge.className = 'badge';
-      alertDetail.textContent = '';
+        const bothSides = alertedSpeakers.length >= 2;
+        if (bothSides || future.total >= 4 || hasSpikes) {
+          level = 'danger';
+          label = '주의';
+          title = '갈등 가능성: 높음';
+          detail = '서버 예측 기준으로 다수의 갈등 위험 신호가 감지되었습니다.';
+        }
 
-      if (!alerts.length) {
-        alertBox.classList.add('good');
-        alertBadge.classList.add('good');
-        alertBadge.textContent = '낮음';
-        alertTitle.textContent = '갈등 가능성: 낮음';
-        return;
-      }
+        const initiator = resultObj && resultObj.initiator ? resultObj.initiator : null;
+        if (initiator) detail += ' (추정 발단 화자: ' + initiator + ')';
+        if (future.total > 0) detail += ' (향후 경고 ' + future.total + '건)';
+        if (hasSpikes) detail += ' (스파이크 감지)';
 
-      // 알림이 있으면 '주의'로 표시 (요구대로 "반환값 기준")
-      alertBox.classList.add('danger');
-      alertBadge.classList.add('danger');
-      alertBadge.textContent = '주의';
-      alertTitle.textContent = '갈등 가능성: 높음';
-
-      // 상세: speaker별 메시지 간단 표시
-      const bySp = {};
-      for (let i = 0; i < alerts.length; i++) {
-        const sp = normalizeSpeakerLabel(alerts[i].speaker);
-        if (!bySp[sp]) bySp[sp] = [];
-        bySp[sp].push(String(alerts[i].msg || ''));
-      }
-      const lines = [];
-      Object.keys(bySp).forEach(function (sp) {
-        const msgs = bySp[sp].slice(0, 3);
-        lines.push(sp + ': ' + msgs.join(' / '));
-      });
-      alertDetail.textContent = lines.join(' | ');
-    }
-
-    function drawGraph() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      speakerBtns.innerHTML = '';
-      legend.innerHTML = '';
-
-      const log = (lastResult && lastResult.per_utt_log) ? lastResult.per_utt_log : [];
-      if (!log.length) return;
-
-      const speakers = Array.from(new Set(log.map(x => normalizeSpeakerLabel(x.speaker))));
-      if (!speakers.length) return;
-
-      if (!selectedSpeaker || speakers.indexOf(selectedSpeaker) === -1) {
-        selectedSpeaker = speakers[0];
-      }
-
-      // speaker buttons
-      speakers.forEach(function (s) {
-        const b = document.createElement('div');
-        b.className = 'chip' + (s === selectedSpeaker ? ' active' : '');
-        b.textContent = s;
-        b.onclick = function () {
-          selectedSpeaker = s;
-          drawGraph();
+        return {
+          level, label, title, detail,
+          futureLines: future.lines,
+          futureTotal: future.total
         };
-        speakerBtns.appendChild(b);
-      });
-
-      const data = log.filter(x => normalizeSpeakerLabel(x.speaker) === selectedSpeaker);
-      if (data.length < 2) return;
-
-      // 감정 종류: (가장 마지막 발화의 emotion key 기준) 너무 많으면 8개까지만
-      const lastEmo = data[data.length - 1].negative_emotions || {};
-      const emotionKeys = Object.keys(lastEmo);
-      // 많이 그리면 난잡해지니, 평균값 상위 8개로 제한
-      const avgMap = {};
-      for (let i = 0; i < data.length; i++) {
-        const eobj = data[i].negative_emotions || {};
-        Object.keys(eobj).forEach(function (k) {
-          const v = Number(eobj[k] || 0);
-          avgMap[k] = (avgMap[k] || 0) + v;
-        });
-      }
-      const ranked = Object.entries(avgMap).sort((a,b)=>b[1]-a[1]).slice(0, 8).map(x=>x[0]);
-
-      const emotions = ranked.length ? ranked : emotionKeys.slice(0, 8);
-      if (!emotions.length) return;
-
-      // axes
-      const left = 56, right = 20, top = 18, bottom = 48;
-      const W = canvas.width, H = canvas.height;
-      const x0 = left, y0 = H - bottom;
-      const x1 = W - right, y1 = top;
-
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#444';
-      ctx.beginPath();
-      ctx.moveTo(x0, y1);
-      ctx.lineTo(x0, y0);
-      ctx.lineTo(x1, y0);
-      ctx.stroke();
-
-      // y grid (0~100)
-      ctx.strokeStyle = '#ddd';
-      ctx.fillStyle = '#666';
-      ctx.font = '12px sans-serif';
-      for (let t = 0; t <= 100; t += 20) {
-        const yy = y0 - (t/100) * (y0 - y1);
-        ctx.beginPath();
-        ctx.moveTo(x0, yy);
-        ctx.lineTo(x1, yy);
-        ctx.stroke();
-        ctx.fillText(String(t), 20, yy + 4);
       }
 
-      // x labels (index)
-      ctx.fillStyle = '#666';
-      const n = data.length;
-      for (let i = 0; i < n; i++) {
-        if (n > 10 && i % 2 === 1) continue;
-        const xx = x0 + (i/(n-1))*(x1-x0);
-        ctx.fillText(String(i+1), xx - 3, y0 + 18);
-      }
-      ctx.fillText('turn', x1 - 28, y0 + 34);
+      // 핵심: textarea 입력 파싱을 "화자: 발화문" 중심으로
+      // (호환) "[화자] 발화문"도 받아주되, 우선순위는 ":" 형식
+      function parseTextareaToLines(text) {
+        const raw = String(text || '');
+        const rows = raw.split(/\r?\n/);
+        const lines = [];
 
-      // lines
-      emotions.forEach(function (emo, idx) {
-        const color = COLORS[idx % COLORS.length];
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          if (!row || row.trim().length === 0) continue;
 
-        ctx.beginPath();
-        for (let i = 0; i < n; i++) {
-          const eobj = data[i].negative_emotions || {};
-          const v = Number(eobj[emo] || 0);
-          const xx = x0 + (i/(n-1))*(x1-x0);
-          const yy = y0 - (v/100)*(y0-y1);
-          if (i === 0) ctx.moveTo(xx, yy);
-          else ctx.lineTo(xx, yy);
+          let speaker = 'Manual';
+          let content = row.trim();
+
+          // 1) "화자: 발화문"
+          const m2 = content.match(/^([^:]{1,64})\s*:\s*(.*)$/);
+          if (m2) {
+            speaker = (m2[1] || '').trim() || 'Manual';
+            content = (m2[2] || '').trim();
+          } else {
+            // 2) (호환) "[화자] 발화문"
+            const m1 = content.match(/^\[([^\]]+)\]\s*(.*)$/);
+            if (m1) {
+              speaker = (m1[1] || '').trim() || 'Manual';
+              content = (m1[2] || '').trim();
+            }
+          }
+
+          if (content.length === 0) continue;
+          lines.push({ speaker: speaker, text: content, start: '', end: '', detected_language: 'ko' });
         }
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+
+        if (lines.length === 0 && raw.trim().length > 0) {
+          lines.push({ speaker: 'Manual', text: raw.trim(), start: '', end: '', detected_language: 'ko' });
+        }
+        return lines;
+      }
+
+      async function fetchHistory() {
+      }
+
+      async function renderHistoryPlusAnalysis() {
+      }
+
+      function getSpeakersFromPerLog(perLog) {
+        const s = new Set();
+        perLog.forEach(function (u) {
+          if (!u) return;
+          if (u.speaker !== undefined && u.speaker !== null) s.add(String(u.speaker));
+        });
+        return Array.from(s);
+      }
+
+      function pickTopEmotionsForSpeaker(perLog, speaker, k) {
+        const acc = new Map();
+        perLog.forEach(function (u) {
+          if (!u || String(u.speaker) !== String(speaker)) return;
+          const emo = u.negative_emotions;
+          if (!emo || typeof emo !== 'object') return;
+          Object.entries(emo).forEach(function (kv) {
+            const key = kv[0];
+            const val = Number(kv[1]);
+            if (!Number.isFinite(val)) return;
+            if (!acc.has(key)) acc.set(key, { sum: 0, cnt: 0 });
+            const o = acc.get(key);
+            o.sum += val;
+            o.cnt += 1;
+          });
+        });
+
+        const ranked = Array.from(acc.entries())
+          .map(function (it) {
+            const key = it[0];
+            const o = it[1];
+            return [key, o.cnt ? (o.sum / o.cnt) : 0];
+          })
+          .sort(function (a,b) { return b[1] - a[1]; });
+
+        return ranked.slice(0, k).map(function (x) { return x[0]; });
+      }
+
+      function colorForEmotion(emotionKey, emotionKeys) {
+        const idx = emotionKeys.indexOf(emotionKey);
+        return COLOR_PALETTE[(idx >= 0 ? idx : 0) % COLOR_PALETTE.length];
+      }
+
+      function rebuildSpeakerButtons() {
+        speakerButtonsEl.innerHTML = '';
+
+        const perLog = lastResultObj && Array.isArray(lastResultObj.per_utt_log) ? lastResultObj.per_utt_log : [];
+        const speakers = getSpeakersFromPerLog(perLog);
+
+        if (speakers.length === 0) return;
+
+        if (selectedSpeaker === null || !speakers.includes(String(selectedSpeaker))) {
+          selectedSpeaker = speakers[0];
+        }
+
+        speakers.forEach(function (spk) {
+          const btn = document.createElement('div');
+          btn.className = 'chip' + (String(spk) === String(selectedSpeaker) ? ' active' : '');
+          btn.textContent = spk;
+          btn.addEventListener('click', function () {
+            selectedSpeaker = spk;
+            rebuildSpeakerButtons();
+            drawMultiEmotionTrend();
+          });
+          speakerButtonsEl.appendChild(btn);
+        });
+      }
+
+      function setLegend(emotionKeys) {
+        legendEl.innerHTML = '';
+        emotionKeys.forEach(function (k) {
+          const item = document.createElement('div');
+          item.className = 'legend-item';
+
+          const sw = document.createElement('div');
+          sw.className = 'swatch';
+          sw.style.backgroundColor = colorForEmotion(k, emotionKeys);
+
+          const t = document.createElement('div');
+          t.textContent = k;
+
+          item.appendChild(sw);
+          item.appendChild(t);
+          legendEl.appendChild(item);
+        });
+      }
+
+      function drawMultiEmotionTrend() {
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const left = 60, right = 16, top = 18, bottom = 34;
+        const plotW = w - left - right;
+        const plotH = h - top - bottom;
+
+        ctx.beginPath();
+        for (let i = 0; i <= 5; i++) {
+          const y = top + (plotH * (1 - i / 5));
+          ctx.moveTo(left, y);
+          ctx.lineTo(w - right, y);
+        }
+        ctx.strokeStyle = '#e9ecef';
+        ctx.lineWidth = 1;
         ctx.stroke();
 
-        // legend
-        const li = document.createElement('div');
-        li.className = 'legend-item';
-        li.innerHTML = '<div class="swatch" style="background:'+color+'"></div>' + emo;
-        legend.appendChild(li);
-      });
-    }
+        ctx.fillStyle = '#555';
+        ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+        for (let i = 0; i <= 5; i++) {
+          const val = i * 20;
+          const y = top + (plotH * (1 - i / 5));
+          ctx.fillText(String(val), 10, y + 4);
+        }
 
-    async function analyze() {
-      const api = getApiBase();
-      const lines = parseTextareaToLines(textarea.value);
+        const perLog = lastResultObj && Array.isArray(lastResultObj.per_utt_log) ? lastResultObj.per_utt_log : [];
+        if (!selectedSpeaker || perLog.length === 0) {
+          ctx.fillStyle = '#777';
+          ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+          ctx.fillText('분석 데이터가 없거나 화자가 선택되지 않았습니다.', left, top + 14);
+          legendEl.innerHTML = '';
+          return;
+        }
 
-      if (!lines.length) {
-        output.textContent = '입력된 발화가 없습니다.';
-        return;
-      }
+        const filtered = perLog.filter(function (u) { return u && String(u.speaker) === String(selectedSpeaker); });
+        if (filtered.length < 2) {
+          ctx.fillStyle = '#777';
+          ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+          ctx.fillText('해당 화자의 발화가 2개 이상 쌓이면 그래프가 표시됩니다.', left, top + 14);
+          legendEl.innerHTML = '';
+          return;
+        }
 
-      output.textContent = '분석 중...';
+        const K = 6;
+        const emotionKeys = pickTopEmotionsForSpeaker(perLog, selectedSpeaker, K);
+        setLegend(emotionKeys);
 
-      let res, json;
-      try {
-        res = await fetch(api + '/analyze_snapshot', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lines: lines })
+        const m = filtered.length;
+        function xAt(i) { return left + (plotW * (i / Math.max(1, m - 1))); }
+        function yAt(val) {
+          const clamped = Math.max(0, Math.min(100, val));
+          return top + plotH * (1 - clamped / 100);
+        }
+
+        emotionKeys.forEach(function (ek) {
+          ctx.beginPath();
+          for (let i = 0; i < m; i++) {
+            const emo = filtered[i].negative_emotions || {};
+            const v = Number(emo[ek]);
+            const val = Number.isFinite(v) ? v : 0;
+            const x = xAt(i);
+            const y = yAt(val);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = colorForEmotion(ek, emotionKeys);
+          ctx.lineWidth = 2;
+          ctx.stroke();
         });
-        json = await res.json();
-      } catch (e) {
-        output.textContent = '요청 실패: ' + String(e && e.message ? e.message : e);
-        return;
+
+        emotionKeys.forEach(function (ek) {
+          const emo = filtered[m - 1].negative_emotions || {};
+          const v = Number(emo[ek]);
+          const val = Number.isFinite(v) ? v : 0;
+          const x = xAt(m - 1);
+          const y = yAt(val);
+
+          ctx.fillStyle = colorForEmotion(ek, emotionKeys);
+          ctx.beginPath();
+          ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.fillStyle = '#555';
+        ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+        ctx.fillText('turn 1', left, h - 10);
+        ctx.fillText('turn ' + String(m), w - right - 60, h - 10);
+
+        ctx.fillStyle = '#111';
+        ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+        ctx.fillText('Speaker: ' + String(selectedSpeaker) + '  |  Top ' + String(emotionKeys.length) + ' emotions', left, 14);
       }
 
-      console.log('[FULL ANALYSIS JSON]', json);
+      async function sendAnalyzeSnapshot(lines) {
+        lastAnalysisBlock = '--- 분석 결과 ---\n(분석 중...)\n';
+        await renderHistoryPlusAnalysis();
 
-      if (!res.ok || json.error) {
-        output.textContent = '오류: ' + (json.error || ('HTTP ' + res.status));
-        return;
+        try {
+          const response = await fetch(API_URL + '/analyze_snapshot?alpha=0.1&z=1.8&steps=3', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lines: lines })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) throw new Error(data.error || '알 수 없는 서버 오류');
+
+          lastResultObj = data.result || null;
+
+          rebuildSpeakerButtons();
+          drawMultiEmotionTrend();
+
+          const decision = decideConflictFromServer(lastResultObj);
+
+          alertBox.classList.remove('good','warn','danger');
+          alertBox.classList.add(decision.level);
+          alertBadge.classList.remove('good','warn','danger');
+          alertBadge.classList.add(decision.level);
+          alertBadge.textContent = decision.label;
+          alertTitle.textContent = decision.title;
+          alertDetail.textContent = decision.detail;
+
+          let futureText = '';
+          if (decision.futureLines && decision.futureLines.length) {
+            futureText = '\n--- future_alerts ---\n' + decision.futureLines.map(function (s) { return '  - ' + s; }).join('\n') + '\n';
+          } else {
+            futureText = '\n--- future_alerts ---\n  (없음)\n';
+          }
+
+          const keysDebug = lastResultObj && typeof lastResultObj === 'object'
+            ? Object.keys(lastResultObj)
+            : [];
+
+          lastAnalysisBlock =
+            '--- 분석 결과 ---\n' +
+            '시간: ' + formatTime(new Date()) + '\n' +
+            'result keys: ' + JSON.stringify(keysDebug) + '\n' +
+            '갈등 판단(서버 기준): ' + decision.title + ' [' + decision.label + ']\n' +
+            '요약: ' + decision.detail + '\n' +
+            '경고 건수(future_alerts): ' + String(decision.futureTotal) + '\n' +
+            futureText;
+
+          await renderHistoryPlusAnalysis();
+        } catch (e) {
+          lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
+          await renderHistoryPlusAnalysis();
+        }
       }
 
-      lastResult = json.result;
-      renderSummary(lastResult);
-      updateConflict(lastResult);
-      drawGraph();
-    }
+      textInput.addEventListener('keydown', function (e) {
+        if (e.isComposing) return;
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          const lines = parseTextareaToLines(textInput.value);
+          if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+          sendAnalyzeSnapshot(lines).catch(function (err) { console.error(err); });
+        }
+      });
 
-    textarea.addEventListener('keydown', async function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        await analyze();
+      resetBtn.addEventListener('click', async function (event) {
+        event.preventDefault();
+        if (!confirm('서버의 대화 기록을 정말로 초기화하고 새로운 대화를 시작하시겠습니까?')) return;
+
+        lastAnalysisBlock = '--- 분석 결과 ---\n(초기화 중...)\n';
+        await renderHistoryPlusAnalysis();
+
+        try {
+          const response = await fetch(API_URL + '/reset', { method: 'POST' });
+          const data = await response.json();
+
+          lastAnalysisBlock = '--- 분석 결과 ---\n' + (data.message || '대화 기록이 초기화되었습니다.') + '\n';
+
+          lastResultObj = null;
+          selectedSpeaker = null;
+          speakerButtonsEl.innerHTML = '';
+          legendEl.innerHTML = '';
+          ctx.clearRect(0,0,canvas.width,canvas.height);
+
+          alertBox.classList.remove('good','warn','danger');
+          alertTitle.textContent = '갈등 가능성: 측정 대기';
+          alertDetail.textContent = 'STT 또는 수동 입력 후 Enter를 누르면 분석 결과가 갱신됩니다.';
+          alertBadge.classList.remove('good','warn','danger');
+          alertBadge.textContent = '대기';
+
+          lastSnapshotText = '';
+          textInput.value = '';
+        } catch (e) {
+          lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
+        }
+
+        await renderHistoryPlusAnalysis();
+      });
+
+      async function maybeAutoAnalyzeFromSnapshot(msgObj) {
+        if (!msgObj || !Array.isArray(msgObj.lines)) return;
+
+        const snapshotText = buildTextareaTextFromLines(msgObj.lines);
+        if (snapshotText === lastSnapshotText) return;
+        lastSnapshotText = snapshotText;
+
+        textInput.value = snapshotText;
+
+        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+        debounceTimer = setTimeout(async function () {
+          await sendAnalyzeSnapshot(msgObj.lines);
+        }, AUTO_ANALYZE_DEBOUNCE_MS);
       }
+
+      // STT 관련 코드는 그대로 두되, 현재 mic 버튼은 주석 처리되어 있어 사용되지 않습니다.
+      // (원본 유지 목적)
+
+      setStatus('초기화 중... (서버 /history 확인)', null);
+      renderHistoryPlusAnalysis();
+      ctx.clearRect(0,0,canvas.width,canvas.height);
     });
-
-    resetBtn.addEventListener('click', async function () {
-      const api = getApiBase();
-      try {
-        await fetch(api + '/reset', { method: 'POST' });
-      } catch (_) {}
-      textarea.value = '';
-      output.textContent = '분석 대기 중...';
-      lastResult = null;
-      selectedSpeaker = null;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      speakerBtns.innerHTML = '';
-      legend.innerHTML = '';
-      alertBox.className = 'alert';
-      alertBadge.className = 'badge';
-      alertBadge.textContent = '대기';
-      alertTitle.textContent = '갈등 가능성: 대기';
-      alertDetail.textContent = '';
-    });
-
-  });
   </script>
 </body>
 </html>

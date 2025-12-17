@@ -6,148 +6,112 @@
   <title>TeamCMD</title>
   <style>
     body{
-      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif;
-      background-color:#f0f2f5;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      min-height:100vh;
-      margin:0;
-      padding:28px 0;
-      overflow-y:auto;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f6f7f9;
+      color:#111;
     }
     .container{
-      background:#fff;
-      padding:24px;
-      border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,.1);
-      width:100%;
-      max-width:1100px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px 14px 40px;
     }
     header{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:14px;
+      margin-bottom:10px;
     }
-    h1{ margin:0; color:#222; font-size:22px; }
-
-    .mic-button{
-      background:#f0f0f0;
-      border:1px solid #ddd;
-      border-radius:999px;
-      padding:10px 14px;
-      cursor:pointer;
-      transition:background-color .2s,border-color .2s;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      user-select:none;
+    header h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: -0.2px;
     }
-    .mic-dot{ width:10px;height:10px;border-radius:50%; background:#777; }
-    .mic-button.active{ background:#ffebee; border-color:#ef9a9a; }
-    .mic-button.active .mic-dot{ background:#d32f2f; }
 
     .grid{
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns: 1.05fr 1.45fr;
       gap:14px;
-      align-items:start;
     }
-    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
 
     .card{
-      border:1px solid #e9ecef;
-      border-radius:10px;
       background:#fff;
+      border:1px solid #e9ecef;
+      border-radius: 12px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.02);
       overflow:hidden;
     }
     .card h2{
       margin:0;
-      padding:12px 14px;
-      font-size:15px;
-      border-bottom:1px solid #eee;
-      color:#222;
-      background:#fafafa;
+      padding: 14px 14px 10px;
+      font-size: 14px;
+      font-weight: 900;
+      border-bottom: 1px solid #f1f3f5;
     }
-    .card .body{ padding:12px 14px; }
+    .card .body{
+      padding: 14px;
+    }
 
     textarea{
       width:100%;
-      height:260px;
-      padding:12px;
-      border:1px solid #ccc;
-      border-radius:8px;
+      height: 240px;
+      resize: vertical;
+      padding: 12px;
+      border-radius: 10px;
+      border:1px solid #e9ecef;
+      outline:none;
+      font-size: 13px;
+      line-height: 1.55;
+      background:#fbfbfc;
       box-sizing:border-box;
-      font-size:14px;
-      line-height:1.5;
-      resize:vertical;
-      white-space:pre-wrap;
+    }
+    textarea:focus{
+      border-color:#111;
+      background:#fff;
+    }
+
+    pre{
+      margin:0;
+      background:#0b1020;
+      color:#e8eaf6;
+      padding: 12px;
+      border-radius: 10px;
+      overflow:auto;
+      min-height: 220px;
+      font-size: 12px;
+      line-height: 1.6;
+      box-sizing:border-box;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .btn-row{
       display:flex;
-      gap:10px;
+      gap:8px;
       margin-top:10px;
-    }
-    button.action{
-      flex:1;
-      padding:12px 10px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:700;
-      color:#fff;
-      background:#6c757d;
-      transition:background-color .2s;
-    }
-    button.action:hover{ background:#5a6268; }
-
-    .alert{
-      margin:14px 0 0 0;
-      padding:12px 14px;
-      border-radius:10px;
-      border:1px solid #e9ecef;
-      background:#f8f9fa;
-      color:#222;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
       flex-wrap:wrap;
     }
-    .alert.good{ border-color:#c8e6c9; background:#e8f5e9; }
-    .alert.warn{ border-color:#ffe0b2; background:#fff3e0; }
-    .alert.danger{ border-color:#ffcdd2; background:#ffebee; }
-    .alert .title{ font-weight:800; }
-    .badge{
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:800;
-      font-size:12px;
+    button.action{
+      border:1px solid #111;
+      background:#111;
       color:#fff;
-      background:#607d8b;
-      white-space:nowrap;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor:pointer;
     }
-    .badge.good{ background:#2e7d32; }
-    .badge.warn{ background:#ef6c00; }
-    .badge.danger{ background:#c62828; }
-
-    pre{
-      margin:0;
-      white-space:pre-wrap;
-      word-break:break-word;
-      font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-      font-size:12.5px;
-      color:#333;
-      background:#f8f9fa;
-      border:1px solid #e9ecef;
-      border-radius:8px;
-      padding:12px;
-      max-height:380px;
-      overflow:auto;
+    button.action.secondary{
+      border:1px solid #ddd;
+      background:#fff;
+      color:#111;
     }
+    button.action:active{ transform: translateY(1px); }
 
     .statusline{
       margin: 0 0 14px 0;
@@ -161,6 +125,38 @@
     }
     .statusline.ok{ border-color:#c8e6c9; background:#e8f5e9; }
     .statusline.bad{ border-color:#ffcdd2; background:#ffebee; }
+
+    .alert{
+      margin-top: 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid #e9ecef;
+      background:#fafafa;
+    }
+    .alert.good{ border-color:#c8e6c9; background:#e8f5e9; }
+    .alert.warn{ border-color:#ffe0b2; background:#fff3e0; }
+    .alert.danger{ border-color:#ffcdd2; background:#ffebee; }
+    .alert .title{
+      font-weight: 900;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .badge{
+      font-size:12px;
+      font-weight:900;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid #ddd;
+      background:#fff;
+      flex:0 0 auto;
+    }
+    .badge.good{ border-color:#81c784; }
+    .badge.warn{ border-color:#ffb74d; }
+    .badge.danger{ border-color:#e57373; }
 
     .chart-controls{
       display:flex;
@@ -206,7 +202,7 @@
     }
     .swatch{
       width:12px;height:12px;border-radius:3px;
-      border:1px solid rgba(0,0,0,.2);
+      border:1px solid rgba(0,0,0,2);
     }
 
     canvas{
@@ -235,7 +231,7 @@
       <div class="card">
         <h2>대화 입력</h2>
         <div class="body">
-          <textarea id="text-input" placeholder="[Speaker1] 너 왜 또 늦었어?&#10;[Speaker2] 미안해, 차가 막혔어.&#10;"></textarea>
+          <textarea id="text-input" placeholder="Speaker1: 너 왜 또 늦었어?&#10;Speaker2: 미안해, 차가 막혔어.&#10;"></textarea>
 
           <div class="btn-row">
             <button class="action" id="reset-btn">새로운 대화</button>
@@ -342,7 +338,7 @@
         });
         if (filtered.length === 0) return '';
         return filtered.map(function (l) {
-          return '[' + speakerLabelFromId(l.speaker) + '] ' + l.text.trim();
+          return speakerLabelFromId(l.speaker) + ': ' + l.text.trim();
         }).join('\n');
       }
 
@@ -369,9 +365,15 @@
       }
 
       function normalizeSpeakerKey(s) {
-        const raw = String(s || '').trim();
+        let raw = String(s || '').trim();
+
+        // 서버/입력에서 "[화자]" 형태로 올 수 있으므로 벗겨낸다.
         const m = raw.match(/^\[([^\]]+)\]$/);
-        if (m && m[1]) return m[1].trim();
+        if (m && m[1]) raw = m[1].trim();
+
+        // "화자:"처럼 콜론이 포함된 키가 오면 정규화한다.
+        raw = raw.replace(/\s*:\s*$/, '').trim();
+
         return raw;
       }
 
@@ -386,7 +388,7 @@
           bySpeaker[spk] = list;
           total += list.length;
           list.forEach(function (msg) {
-            lines.push('[' + spk + '] ' + msg);
+            lines.push(spk + ': ' + msg);
           });
         }
         return { total, bySpeaker, lines };
@@ -450,201 +452,151 @@
           let speaker = 'Manual';
           let content = row.trim();
 
-          const m1 = content.match(/^\[([^\]]+)\]\s*(.*)$/);
-          if (m1) {
-            speaker = (m1[1] || '').trim() || 'Manual';
-            content = (m1[2] || '').trim();
+          // 1) 우선 "화자: 발화" 형식을 최우선으로 파싱
+          const m2 = content.match(/^([^:]{1,24})\s*:\s*(.*)$/);
+          if (m2) {
+            speaker = (m2[1] || '').trim() || 'Manual';
+            content = (m2[2] || '').trim();
           } else {
-            const m2 = content.match(/^([^:]{1,24})\s*:\s*(.*)$/);
-            if (m2) {
-              speaker = (m2[1] || '').trim() || 'Manual';
-              content = (m2[2] || '').trim();
+            // 2) 기존 호환: "[화자] 발화" 형식도 허용
+            const m1 = content.match(/^\[([^\]]+)\]\s*(.*)$/);
+            if (m1) {
+              speaker = (m1[1] || '').trim() || 'Manual';
+              content = (m1[2] || '').trim();
             }
           }
 
           if (content.length === 0) continue;
+
           lines.push({ speaker: speaker, text: content, start: '', end: '', detected_language: 'ko' });
         }
 
-        if (lines.length === 0 && raw.trim().length > 0) {
-          lines.push({ speaker: 'Manual', text: raw.trim(), start: '', end: '', detected_language: 'ko' });
-        }
         return lines;
-      }
-
-      async function fetchHistory() {
-        const controller = new AbortController();
-        const timer = setTimeout(function () { controller.abort(); }, 4000);
-        try {
-          const res = await fetch(API_URL + '/history', { signal: controller.signal });
-          if (!res.ok) throw new Error('history fetch failed (' + res.status + ')');
-          return await res.json();
-        } finally {
-          clearTimeout(timer);
-        }
       }
 
       async function renderHistoryPlusAnalysis() {
         try {
-          const data = await fetchHistory();
-          const history = Array.isArray(data.history) ? data.history : [];
-          const historyText = history.length > 0
-            ? ('--- 전체 대화 기록 ---\n\n' + history.join('\n'))
-            : ('--- 전체 대화 기록 ---\n\n(기록 없음)');
-          resultsOutput.textContent = historyText + '\n\n' + lastAnalysisBlock;
-          setStatus('서버 연결: OK  |  /history 로드 완료', true);
+          const response = await fetch(API_URL + '/history', { method: 'GET' });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || '알 수 없는 서버 오류');
+
+          const serverLines = (data && Array.isArray(data.lines)) ? data.lines : [];
+          const historyText = buildTextareaTextFromLines(serverLines);
+
+          const combined =
+            '--- 서버 대화 기록 ---\n' +
+            (historyText ? historyText : '(없음)') +
+            '\n\n' +
+            lastAnalysisBlock;
+
+          resultsOutput.textContent = combined;
         } catch (e) {
-          resultsOutput.textContent = '대화 기록 불러오기 실패: ' + e.message + '\n\n' + lastAnalysisBlock;
-          setStatus('서버 연결 실패: ' + e.message + '  (API_URL=' + API_URL + ')', false);
+          resultsOutput.textContent = '오류: ' + e.message;
         }
       }
 
-      function getSpeakersFromPerLog(perLog) {
-        const s = new Set();
-        perLog.forEach(function (u) {
-          if (!u) return;
-          if (u.speaker !== undefined && u.speaker !== null) s.add(String(u.speaker));
-        });
-        return Array.from(s);
+      function colorForSpeaker(spk, index) {
+        const i = index % COLOR_PALETTE.length;
+        return COLOR_PALETTE[i];
       }
 
-      function pickTopEmotionsForSpeaker(perLog, speaker, k) {
-        const acc = new Map();
-        perLog.forEach(function (u) {
-          if (!u || String(u.speaker) !== String(speaker)) return;
-          const emo = u.negative_emotions;
-          if (!emo || typeof emo !== 'object') return;
-          Object.entries(emo).forEach(function (kv) {
-            const key = kv[0];
-            const val = Number(kv[1]);
-            if (!Number.isFinite(val)) return;
-            if (!acc.has(key)) acc.set(key, { sum: 0, cnt: 0 });
-            const o = acc.get(key);
-            o.sum += val;
-            o.cnt += 1;
-          });
-        });
-
-        const ranked = Array.from(acc.entries())
-          .map(function (it) {
-            const key = it[0];
-            const o = it[1];
-            return [key, o.cnt ? (o.sum / o.cnt) : 0];
-          })
-          .sort(function (a,b) { return b[1] - a[1]; });
-
-        return ranked.slice(0, k).map(function (x) { return x[0]; });
+      function colorForEmotion(emoKey, emotionKeys) {
+        const idx = emotionKeys.indexOf(emoKey);
+        const i = (idx >= 0 ? idx : 0) % COLOR_PALETTE.length;
+        return COLOR_PALETTE[i];
       }
 
-      function colorForEmotion(emotionKey, emotionKeys) {
-        const idx = emotionKeys.indexOf(emotionKey);
-        return COLOR_PALETTE[(idx >= 0 ? idx : 0) % COLOR_PALETTE.length];
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
 
-      function rebuildSpeakerButtons() {
-        speakerButtonsEl.innerHTML = '';
+      function drawAxes(left, top, right, bottom) {
+        const w = canvas.width;
+        const h = canvas.height;
 
-        const perLog = lastResultObj && Array.isArray(lastResultObj.per_utt_log) ? lastResultObj.per_utt_log : [];
-        const speakers = getSpeakersFromPerLog(perLog);
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
 
-        if (speakers.length === 0) return;
+        // x-axis
+        ctx.beginPath();
+        ctx.moveTo(left, h - bottom);
+        ctx.lineTo(w - right, h - bottom);
+        ctx.stroke();
 
-        if (selectedSpeaker === null || !speakers.includes(String(selectedSpeaker))) {
-          selectedSpeaker = speakers[0];
-        }
-
-        speakers.forEach(function (spk) {
-          const btn = document.createElement('div');
-          btn.className = 'chip' + (String(spk) === String(selectedSpeaker) ? ' active' : '');
-          btn.textContent = spk;
-          btn.addEventListener('click', function () {
-            selectedSpeaker = spk;
-            rebuildSpeakerButtons();
-            drawMultiEmotionTrend();
-          });
-          speakerButtonsEl.appendChild(btn);
-        });
-      }
-
-      function setLegend(emotionKeys) {
-        legendEl.innerHTML = '';
-        emotionKeys.forEach(function (k) {
-          const item = document.createElement('div');
-          item.className = 'legend-item';
-
-          const sw = document.createElement('div');
-          sw.className = 'swatch';
-          sw.style.backgroundColor = colorForEmotion(k, emotionKeys);
-
-          const t = document.createElement('div');
-          t.textContent = k;
-
-          item.appendChild(sw);
-          item.appendChild(t);
-          legendEl.appendChild(item);
-        });
+        // y-axis
+        ctx.beginPath();
+        ctx.moveTo(left, top);
+        ctx.lineTo(left, h - bottom);
+        ctx.stroke();
       }
 
       function drawMultiEmotionTrend() {
+        clearCanvas();
+
+        const resultObj = lastResultObj;
+        if (!resultObj || typeof resultObj !== 'object') {
+          ctx.fillStyle = '#666';
+          ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+          ctx.fillText('분석 결과가 없습니다.', 14, 22);
+          return;
+        }
+
+        const series = (resultObj && Array.isArray(resultObj.series)) ? resultObj.series : [];
+        if (!series.length) {
+          ctx.fillStyle = '#666';
+          ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+          ctx.fillText('시계열(series)이 비어 있습니다.', 14, 22);
+          return;
+        }
+
+        // 선택 화자 필터
+        const filtered = selectedSpeaker
+          ? series.filter(function (it) { return String(it.speaker) === String(selectedSpeaker); })
+          : series.slice();
+
+        if (!filtered.length) {
+          ctx.fillStyle = '#666';
+          ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+          ctx.fillText('선택 화자 데이터가 없습니다.', 14, 22);
+          return;
+        }
+
+        // 감정 키 추정(negative_emotions 우선, 없으면 emotions)
+        const sample = filtered[0] || {};
+        const emoObj = (sample.negative_emotions && typeof sample.negative_emotions === 'object')
+          ? sample.negative_emotions
+          : ((sample.emotions && typeof sample.emotions === 'object') ? sample.emotions : {});
+        const emotionKeys = Object.keys(emoObj || {}).slice(0, 6);
+
         const w = canvas.width;
         const h = canvas.height;
-        ctx.clearRect(0, 0, w, h);
+        const left = 46;
+        const right = 18;
+        const top = 22;
+        const bottom = 30;
 
-        const left = 60, right = 16, top = 18, bottom = 34;
-        const plotW = w - left - right;
-        const plotH = h - top - bottom;
+        drawAxes(left, top, right, bottom);
 
-        ctx.beginPath();
-        for (let i = 0; i <= 5; i++) {
-          const y = top + (plotH * (1 - i / 5));
-          ctx.moveTo(left, y);
-          ctx.lineTo(w - right, y);
-        }
-        ctx.strokeStyle = '#e9ecef';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        // 데이터 범위
+        const maxY = 1.0;
+        const minY = 0.0;
 
-        ctx.fillStyle = '#555';
-        ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
-        for (let i = 0; i <= 5; i++) {
-          const val = i * 20;
-          const y = top + (plotH * (1 - i / 5));
-          ctx.fillText(String(val), 10, y + 4);
-        }
+        const xAt = function (idx) {
+          if (filtered.length <= 1) return left;
+          const t = idx / (filtered.length - 1);
+          return left + t * (w - left - right);
+        };
+        const yAt = function (val) {
+          const clamped = Math.max(minY, Math.min(maxY, val));
+          const t = (clamped - minY) / (maxY - minY);
+          return (h - bottom) - t * (h - top - bottom);
+        };
 
-        const perLog = lastResultObj && Array.isArray(lastResultObj.per_utt_log) ? lastResultObj.per_utt_log : [];
-        if (!selectedSpeaker || perLog.length === 0) {
-          ctx.fillStyle = '#777';
-          ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
-          ctx.fillText('분석 데이터가 없거나 화자가 선택되지 않았습니다.', left, top + 14);
-          legendEl.innerHTML = '';
-          return;
-        }
-
-        const filtered = perLog.filter(function (u) { return u && String(u.speaker) === String(selectedSpeaker); });
-        if (filtered.length < 2) {
-          ctx.fillStyle = '#777';
-          ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
-          ctx.fillText('해당 화자의 발화가 2개 이상 쌓이면 그래프가 표시됩니다.', left, top + 14);
-          legendEl.innerHTML = '';
-          return;
-        }
-
-        const K = 6;
-        const emotionKeys = pickTopEmotionsForSpeaker(perLog, selectedSpeaker, K);
-        setLegend(emotionKeys);
-
-        const m = filtered.length;
-        function xAt(i) { return left + (plotW * (i / Math.max(1, m - 1))); }
-        function yAt(val) {
-          const clamped = Math.max(0, Math.min(100, val));
-          return top + plotH * (1 - clamped / 100);
-        }
-
+        // 라인 + 점
         emotionKeys.forEach(function (ek) {
           ctx.beginPath();
-          for (let i = 0; i < m; i++) {
-            const emo = filtered[i].negative_emotions || {};
+          for (let i = 0; i < filtered.length; i++) {
+            const emo = filtered[i].negative_emotions || filtered[i].emotions || {};
             const v = Number(emo[ek]);
             const val = Number.isFinite(v) ? v : 0;
             const x = xAt(i);
@@ -657,8 +609,9 @@
           ctx.stroke();
         });
 
+        const m = filtered.length;
         emotionKeys.forEach(function (ek) {
-          const emo = filtered[m - 1].negative_emotions || {};
+          const emo = filtered[m - 1].negative_emotions || filtered[m - 1].emotions || {};
           const v = Number(emo[ek]);
           const val = Number.isFinite(v) ? v : 0;
           const x = xAt(m - 1);
@@ -678,6 +631,54 @@
         ctx.fillStyle = '#111';
         ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
         ctx.fillText('Speaker: ' + String(selectedSpeaker) + '  |  Top ' + String(emotionKeys.length) + ' emotions', left, 14);
+
+        // legend
+        legendEl.innerHTML = '';
+        emotionKeys.forEach(function (ek) {
+          const item = document.createElement('div');
+          item.className = 'legend-item';
+          const sw = document.createElement('div');
+          sw.className = 'swatch';
+          sw.style.background = colorForEmotion(ek, emotionKeys);
+          const label = document.createElement('div');
+          label.textContent = ek;
+          item.appendChild(sw);
+          item.appendChild(label);
+          legendEl.appendChild(item);
+        });
+      }
+
+      function rebuildSpeakerButtons() {
+        speakerButtonsEl.innerHTML = '';
+        const resultObj = lastResultObj;
+        if (!resultObj || typeof resultObj !== 'object') return;
+
+        const series = (resultObj && Array.isArray(resultObj.series)) ? resultObj.series : [];
+        const speakers = Array.from(new Set(series.map(function (it) { return String(it.speaker); })));
+
+        // "전체" 버튼
+        const allBtn = document.createElement('div');
+        allBtn.className = 'chip' + (!selectedSpeaker ? ' active' : '');
+        allBtn.textContent = '전체';
+        allBtn.addEventListener('click', function () {
+          selectedSpeaker = null;
+          rebuildSpeakerButtons();
+          drawMultiEmotionTrend();
+        });
+        speakerButtonsEl.appendChild(allBtn);
+
+        speakers.forEach(function (spk, idx) {
+          const chip = document.createElement('div');
+          const active = (String(selectedSpeaker) === String(spk));
+          chip.className = 'chip' + (active ? ' active' : '');
+          chip.textContent = spk;
+          chip.addEventListener('click', function () {
+            selectedSpeaker = spk;
+            rebuildSpeakerButtons();
+            drawMultiEmotionTrend();
+          });
+          speakerButtonsEl.appendChild(chip);
+        });
       }
 
       async function sendAnalyzeSnapshot(lines) {
@@ -766,150 +767,51 @@
         try {
           const response = await fetch(API_URL + '/reset', { method: 'POST' });
           const data = await response.json();
-
-          lastAnalysisBlock = '--- 분석 결과 ---\n' + (data.message || '대화 기록이 초기화되었습니다.') + '\n';
+          if (!response.ok) throw new Error(data.error || '알 수 없는 서버 오류');
 
           lastResultObj = null;
           selectedSpeaker = null;
           speakerButtonsEl.innerHTML = '';
           legendEl.innerHTML = '';
-          ctx.clearRect(0,0,canvas.width,canvas.height);
 
           alertBox.classList.remove('good','warn','danger');
-          alertTitle.textContent = '갈등 가능성: 측정 대기';
-          alertDetail.textContent = 'STT 또는 수동 입력 후 Enter를 누르면 분석 결과가 갱신됩니다.';
           alertBadge.classList.remove('good','warn','danger');
+          alertTitle.textContent = '갈등 가능성: 측정 대기';
+          alertDetail.textContent = '';
           alertBadge.textContent = '대기';
 
-          lastSnapshotText = '';
+          setStatus('초기화 완료. 새 대화를 입력하세요. (Enter=분석, Shift+Enter=줄바꿈)', true);
           textInput.value = '';
-        } catch (e) {
-          lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
-        }
+          lastSnapshotText = '';
 
-        await renderHistoryPlusAnalysis();
+          await renderHistoryPlusAnalysis();
+          drawMultiEmotionTrend();
+        } catch (e) {
+          setStatus('초기화 실패: ' + e.message, false);
+          lastAnalysisBlock = '--- 분석 결과 ---\n초기화 실패: ' + e.message + '\n';
+          await renderHistoryPlusAnalysis();
+        }
       });
 
-      async function maybeAutoAnalyzeFromSnapshot(msgObj) {
-        if (!msgObj || !Array.isArray(msgObj.lines)) return;
-
-        const snapshotText = buildTextareaTextFromLines(msgObj.lines);
-        if (snapshotText === lastSnapshotText) return;
-        lastSnapshotText = snapshotText;
-
-        textInput.value = snapshotText;
-
-        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
-        debounceTimer = setTimeout(async function () {
-          await sendAnalyzeSnapshot(msgObj.lines);
-        }, AUTO_ANALYZE_DEBOUNCE_MS);
-      }
-
-      async function waitWsOpen(ws, timeoutMs) {
-        if (ws.readyState === WebSocket.OPEN) return;
-        const to = typeof timeoutMs === 'number' ? timeoutMs : 7000;
-
-        await new Promise(function (resolve, reject) {
-          const timer = setTimeout(function () { reject(new Error('WebSocket open timeout')); }, to);
-          ws.addEventListener('open', function () { clearTimeout(timer); resolve(); }, { once: true });
-          ws.addEventListener('error', function () { clearTimeout(timer); reject(new Error('WebSocket error before open')); }, { once: true });
-        });
-      }
-
-      async function startStt() {
-        if (sttIsRunning) return;
-
-        lastSnapshotText = '';
-        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
-
-        sttStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-        sttWs = new WebSocket(WHISPER_WS_URL);
-        sttWs.binaryType = 'arraybuffer';
-
-        sttWs.onopen = async function () {
-          sttIsRunning = true;
-          micBtn.classList.add('active');
-          micLabel.textContent = 'STT 중지';
-          lastAnalysisBlock = '--- 분석 결과 ---\n(STT 연결됨)\n';
-          setStatus('STT 연결: OK  |  WS=' + WHISPER_WS_URL, true);
-          await renderHistoryPlusAnalysis();
-        };
-
-        sttWs.onerror = async function () {
-          lastAnalysisBlock = '--- 분석 결과 ---\n(STT WebSocket 오류)\n';
-          setStatus('STT 연결: 실패  |  WS=' + WHISPER_WS_URL, false);
-          await renderHistoryPlusAnalysis();
-        };
-
-        sttWs.onclose = async function () {
-          if (sttIsRunning) await stopStt();
-        };
-
-        sttWs.onmessage = function (evt) {
-          if (typeof evt.data !== 'string') return;
-          const obj = safeJsonParse(evt.data);
-          if (!obj || !Array.isArray(obj.lines)) return;
-          maybeAutoAnalyzeFromSnapshot(obj).catch(function (e) { console.error(e); });
-        };
-
-        await waitWsOpen(sttWs, 7000);
-
-        const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm'];
-        let mimeType = '';
-        for (let i = 0; i < mimeCandidates.length; i++) {
-          if (MediaRecorder.isTypeSupported(mimeCandidates[i])) { mimeType = mimeCandidates[i]; break; }
-        }
-
-        sttRecorder = mimeType ? new MediaRecorder(sttStream, { mimeType: mimeType }) : new MediaRecorder(sttStream);
-
-        sttRecorder.ondataavailable = async function (e) {
-          if (!e.data || e.data.size === 0) return;
-          if (!sttWs || sttWs.readyState !== WebSocket.OPEN) return;
-          const buf = await e.data.arrayBuffer();
-          sttWs.send(buf);
-        };
-
-        sttRecorder.start(250);
-      }
-
-      async function stopStt() {
-        if (!sttIsRunning) return;
-        sttIsRunning = false;
-
-        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
-
-        try { if (sttRecorder && sttRecorder.state !== 'inactive') sttRecorder.stop(); } catch (e) {}
-        try { if (sttStream) sttStream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
-        try { if (sttWs && sttWs.readyState === WebSocket.OPEN) sttWs.close(); } catch (e) {}
-
-        sttRecorder = null;
-        sttStream = null;
-        sttWs = null;
-
-        // micBtn.classList.remove('active'); 
-        // micLabel.textContent = 'STT 시작'; 
-
-        lastAnalysisBlock = '--- 분석 결과 ---\n(STT 중지됨)\n';
-        setStatus('STT 중지됨', null);
-        await renderHistoryPlusAnalysis();
-      }
-
-      micBtn.addEventListener('click', async function () {
+      async function bootstrap() {
+        setStatus('서버 연결 확인 중...', null);
         try {
-          if (!sttIsRunning) await startStt();
-          else await stopStt();
+          const resp = await fetch(API_URL + '/ping', { method: 'GET' });
+          const data = await resp.json();
+          if (!resp.ok) throw new Error(data.error || 'ping 실패');
+          setStatus('서버 연결 OK. 대화를 입력하세요. (Enter=분석, Shift+Enter=줄바꿈)', true);
         } catch (e) {
-          lastAnalysisBlock = '--- 분석 결과 ---\nSTT 시작 실패: ' + e.message + '\n';
-          setStatus('STT 시작 실패: ' + e.message, false);
-          await renderHistoryPlusAnalysis();
-          try { await stopStt(); } catch (e2) {}
+          setStatus('서버 연결 실패: ' + e.message, false);
         }
-      });
 
-      setStatus('초기화 중... (서버 /history 확인)', null);
-      renderHistoryPlusAnalysis();
-      ctx.clearRect(0,0,canvas.width,canvas.height);
+        await renderHistoryPlusAnalysis();
+        drawMultiEmotionTrend();
+      }
+
+      bootstrap().catch(function (e) {
+        console.error(e);
+        setStatus('초기화 오류: ' + e.message, false);
+      });
     });
   </script>
 </body>

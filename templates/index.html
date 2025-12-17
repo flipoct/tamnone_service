@@ -296,7 +296,7 @@
       const speakerButtonsEl = document.getElementById('speaker-buttons');
       const legendEl = document.getElementById('legend');
 
-      const API_URL = 'https://tamnone-service.vercel.app/';
+      const API_URL = window.location.href.replace(/\/+$/,'');
       const WHISPER_WS_URL = 'ws://127.0.0.1:8000/asr';
       const AUTO_ANALYZE_DEBOUNCE_MS = 900;
 

@@ -68,6 +68,10 @@ except Exception as e:
 def home():
     return render_template('index.html')
 
+@app.rout('/ping', methods=['GET'])
+def pingpong():
+    return jsonify({"return": "200 OK"});
+
 # --- API 엔드포인트 ---
 @app.route('/analyze', methods=['POST'])
 def analyze_text():

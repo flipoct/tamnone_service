@@ -662,16 +662,10 @@
         const series = (resultObj && Array.isArray(resultObj.per_utt_log)) ? resultObj.per_utt_log : [];
         const speakers = Array.from(new Set(series.map(function (it) { return String(it.speaker); })));
 
-        // "전체" 버튼
-        const allBtn = document.createElement('div');
-        allBtn.className = 'chip' + (!selectedSpeaker ? ' active' : '');
-        allBtn.textContent = '전체';
-        allBtn.addEventListener('click', function () {
-          selectedSpeaker = null;
-          rebuildSpeakerButtons();
-          drawMultiEmotionTrend();
-        });
-        speakerButtonsEl.appendChild(allBtn);
+        if (!selectedSpeaker && speakers.length > 0) {
+          selectedSpeaker = speakers[0];
+        }
+
 
         speakers.forEach(function (spk, idx) {
           const chip = document.createElement('div');

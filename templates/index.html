@@ -235,7 +235,7 @@
       <div class="card">
         <h2>대화 입력</h2>
         <div class="body">
-          <textarea id="text-input" placeholder="화자1: 너 왜 또 늦었어?&#10;화자2: 미안해, 차가 막혔어.&#10;"></textarea>
+          <textarea id="text-input" placeholder="[Speaker1] 너 왜 또 늦었어?&#10;[Speaker2] 미안해, 차가 막혔어.&#10;"></textarea>
 
           <div class="btn-row">
             <button class="action" id="reset-btn">새로운 대화</button>
@@ -336,14 +336,13 @@
         return 'Speaker';
       }
 
-      // textarea에 다시 쓸 때도 "화자: 발화문" 형식으로 통일
       function buildTextareaTextFromLines(lines) {
         const filtered = lines.filter(function (l) {
           return l && typeof l.text === 'string' && l.text.trim().length > 0;
         });
         if (filtered.length === 0) return '';
         return filtered.map(function (l) {
-          return speakerLabelFromId(l.speaker) + ': ' + l.text.trim();
+          return '[' + speakerLabelFromId(l.speaker) + '] ' + l.text.trim();
         }).join('\n');
       }
 
@@ -387,8 +386,7 @@
           bySpeaker[spk] = list;
           total += list.length;
           list.forEach(function (msg) {
-            // future_alerts 출력도 "화자: 메시지"로 통일
-            lines.push(spk + ': ' + msg);
+            lines.push('[' + spk + '] ' + msg);
           });
         }
         return { total, bySpeaker, lines };
@@ -440,8 +438,6 @@
         };
       }
 
-      // 핵심: textarea 입력 파싱을 "화자: 발화문" 중심으로
-      // (호환) "[화자] 발화문"도 받아주되, 우선순위는 ":" 형식
       function parseTextareaToLines(text) {
         const raw = String(text || '');
         const rows = raw.split(/\r?\n/);
@@ -454,17 +450,15 @@
           let speaker = 'Manual';
           let content = row.trim();
 
-          // 1) "화자: 발화문"
-          const m2 = content.match(/^([^:]{1,64})\s*:\s*(.*)$/);
-          if (m2) {
-            speaker = (m2[1] || '').trim() || 'Manual';
-            content = (m2[2] || '').trim();
+          const m1 = content.match(/^\[([^\]]+)\]\s*(.*)$/);
+          if (m1) {
+            speaker = (m1[1] || '').trim() || 'Manual';
+            content = (m1[2] || '').trim();
           } else {
-            // 2) (호환) "[화자] 발화문"
-            const m1 = content.match(/^\[([^\]]+)\]\s*(.*)$/);
-            if (m1) {
-              speaker = (m1[1] || '').trim() || 'Manual';
-              content = (m1[2] || '').trim();
+            const m2 = content.match(/^([^:]{1,24})\s*:\s*(.*)$/);
+            if (m2) {
+              speaker = (m2[1] || '').trim() || 'Manual';
+              content = (m2[2] || '').trim();
             }
           }
 
@@ -476,6 +470,33 @@
           lines.push({ speaker: 'Manual', text: raw.trim(), start: '', end: '', detected_language: 'ko' });
         }
         return lines;
+      }
+
+      async function fetchHistory() {
+        const controller = new AbortController();
+        const timer = setTimeout(function () { controller.abort(); }, 4000);
+        try {
+          const res = await fetch(API_URL + '/history', { signal: controller.signal });
+          if (!res.ok) throw new Error('history fetch failed (' + res.status + ')');
+          return await res.json();
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      async function renderHistoryPlusAnalysis() {
+        try {
+          const data = await fetchHistory();
+          const history = Array.isArray(data.history) ? data.history : [];
+          const historyText = history.length > 0
+            ? ('--- 전체 대화 기록 ---\n\n' + history.join('\n'))
+            : ('--- 전체 대화 기록 ---\n\n(기록 없음)');
+          resultsOutput.textContent = historyText + '\n\n' + lastAnalysisBlock;
+          setStatus('서버 연결: OK  |  /history 로드 완료', true);
+        } catch (e) {
+          resultsOutput.textContent = '대화 기록 불러오기 실패: ' + e.message + '\n\n' + lastAnalysisBlock;
+          setStatus('서버 연결 실패: ' + e.message + '  (API_URL=' + API_URL + ')', false);
+        }
       }
 
       function getSpeakersFromPerLog(perLog) {
@@ -661,6 +682,7 @@
 
       async function sendAnalyzeSnapshot(lines) {
         lastAnalysisBlock = '--- 분석 결과 ---\n(분석 중...)\n';
+        await renderHistoryPlusAnalysis();
 
         try {
           const response = await fetch(API_URL + '/analyze_snapshot?alpha=0.1&z=1.8&steps=3', {
@@ -671,9 +693,15 @@
 
           const data = await response.json();
 
+          // ✅ 여기: 분석 결과(JSON) 받을 때마다 콘솔에 찍기
+          console.log('[ANALYZE] raw response json:', data);
+
           if (!response.ok) throw new Error(data.error || '알 수 없는 서버 오류');
 
           lastResultObj = data.result || null;
+
+          // ✅ 여기: result 자체도 별도로 찍기(원하면 유지)
+          console.log('[ANALYZE] result:', lastResultObj);
 
           rebuildSpeakerButtons();
           drawMultiEmotionTrend();
@@ -708,8 +736,13 @@
             '경고 건수(future_alerts): ' + String(decision.futureTotal) + '\n' +
             futureText;
 
+          await renderHistoryPlusAnalysis();
         } catch (e) {
+          // ✅ 오류도 콘솔에
+          console.error('[ANALYZE] error:', e);
+
           lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
+          await renderHistoryPlusAnalysis();
         }
       }
 
@@ -728,6 +761,7 @@
         if (!confirm('서버의 대화 기록을 정말로 초기화하고 새로운 대화를 시작하시겠습니까?')) return;
 
         lastAnalysisBlock = '--- 분석 결과 ---\n(초기화 중...)\n';
+        await renderHistoryPlusAnalysis();
 
         try {
           const response = await fetch(API_URL + '/reset', { method: 'POST' });
@@ -753,6 +787,7 @@
           lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
         }
 
+        await renderHistoryPlusAnalysis();
       });
 
       async function maybeAutoAnalyzeFromSnapshot(msgObj) {
@@ -770,10 +805,110 @@
         }, AUTO_ANALYZE_DEBOUNCE_MS);
       }
 
-      // STT 관련 코드는 그대로 두되, 현재 mic 버튼은 주석 처리되어 있어 사용되지 않습니다.
-      // (원본 유지 목적)
+      async function waitWsOpen(ws, timeoutMs) {
+        if (ws.readyState === WebSocket.OPEN) return;
+        const to = typeof timeoutMs === 'number' ? timeoutMs : 7000;
 
-      setStatus('초기화 중... (서버 확인)', null);
+        await new Promise(function (resolve, reject) {
+          const timer = setTimeout(function () { reject(new Error('WebSocket open timeout')); }, to);
+          ws.addEventListener('open', function () { clearTimeout(timer); resolve(); }, { once: true });
+          ws.addEventListener('error', function () { clearTimeout(timer); reject(new Error('WebSocket error before open')); }, { once: true });
+        });
+      }
+
+      async function startStt() {
+        if (sttIsRunning) return;
+
+        lastSnapshotText = '';
+        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+
+        sttStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        sttWs = new WebSocket(WHISPER_WS_URL);
+        sttWs.binaryType = 'arraybuffer';
+
+        sttWs.onopen = async function () {
+          sttIsRunning = true;
+          micBtn.classList.add('active');
+          micLabel.textContent = 'STT 중지';
+          lastAnalysisBlock = '--- 분석 결과 ---\n(STT 연결됨)\n';
+          setStatus('STT 연결: OK  |  WS=' + WHISPER_WS_URL, true);
+          await renderHistoryPlusAnalysis();
+        };
+
+        sttWs.onerror = async function () {
+          lastAnalysisBlock = '--- 분석 결과 ---\n(STT WebSocket 오류)\n';
+          setStatus('STT 연결: 실패  |  WS=' + WHISPER_WS_URL, false);
+          await renderHistoryPlusAnalysis();
+        };
+
+        sttWs.onclose = async function () {
+          if (sttIsRunning) await stopStt();
+        };
+
+        sttWs.onmessage = function (evt) {
+          if (typeof evt.data !== 'string') return;
+          const obj = safeJsonParse(evt.data);
+          if (!obj || !Array.isArray(obj.lines)) return;
+          maybeAutoAnalyzeFromSnapshot(obj).catch(function (e) { console.error(e); });
+        };
+
+        await waitWsOpen(sttWs, 7000);
+
+        const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm'];
+        let mimeType = '';
+        for (let i = 0; i < mimeCandidates.length; i++) {
+          if (MediaRecorder.isTypeSupported(mimeCandidates[i])) { mimeType = mimeCandidates[i]; break; }
+        }
+
+        sttRecorder = mimeType ? new MediaRecorder(sttStream, { mimeType: mimeType }) : new MediaRecorder(sttStream);
+
+        sttRecorder.ondataavailable = async function (e) {
+          if (!e.data || e.data.size === 0) return;
+          if (!sttWs || sttWs.readyState !== WebSocket.OPEN) return;
+          const buf = await e.data.arrayBuffer();
+          sttWs.send(buf);
+        };
+
+        sttRecorder.start(250);
+      }
+
+      async function stopStt() {
+        if (!sttIsRunning) return;
+        sttIsRunning = false;
+
+        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+
+        try { if (sttRecorder && sttRecorder.state !== 'inactive') sttRecorder.stop(); } catch (e) {}
+        try { if (sttStream) sttStream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+        try { if (sttWs && sttWs.readyState === WebSocket.OPEN) sttWs.close(); } catch (e) {}
+
+        sttRecorder = null;
+        sttStream = null;
+        sttWs = null;
+
+        // micBtn.classList.remove('active'); 
+        // micLabel.textContent = 'STT 시작'; 
+
+        lastAnalysisBlock = '--- 분석 결과 ---\n(STT 중지됨)\n';
+        setStatus('STT 중지됨', null);
+        await renderHistoryPlusAnalysis();
+      }
+
+      micBtn.addEventListener('click', async function () {
+        try {
+          if (!sttIsRunning) await startStt();
+          else await stopStt();
+        } catch (e) {
+          lastAnalysisBlock = '--- 분석 결과 ---\nSTT 시작 실패: ' + e.message + '\n';
+          setStatus('STT 시작 실패: ' + e.message, false);
+          await renderHistoryPlusAnalysis();
+          try { await stopStt(); } catch (e2) {}
+        }
+      });
+
+      setStatus('초기화 중... (서버 /history 확인)', null);
+      renderHistoryPlusAnalysis();
       ctx.clearRect(0,0,canvas.width,canvas.height);
     });
   </script>

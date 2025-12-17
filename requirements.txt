@@ -1,0 +1,3 @@
+Flask
+flask-cors
+gradio_client

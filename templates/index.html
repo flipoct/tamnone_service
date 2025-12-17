@@ -235,6 +235,7 @@
 
           <div class="btn-row">
             <button class="action" id="reset-btn">새로운 대화</button>
+            <button class="action secondary" id="analyze-btn" title="버튼으로 분석 실행">분석</button>
           </div>
 
           <div class="alert" id="conflict-alert">
@@ -274,6 +275,7 @@
     document.addEventListener('DOMContentLoaded', function () {
       const textInput = document.getElementById('text-input');
       const resetBtn = document.getElementById('reset-btn');
+      const analyzeBtn = document.getElementById('analyze-btn');
       const resultsOutput = document.getElementById('results-output');
 
       const micBtn = document.getElementById('mic-btn');
@@ -367,11 +369,9 @@
       function normalizeSpeakerKey(s) {
         let raw = String(s || '').trim();
 
-        // 서버/입력에서 "[화자]" 형태로 올 수 있으므로 벗겨낸다.
         const m = raw.match(/^\[([^\]]+)\]$/);
         if (m && m[1]) raw = m[1].trim();
 
-        // "화자:"처럼 콜론이 포함된 키가 오면 정규화한다.
         raw = raw.replace(/\s*:\s*$/, '').trim();
 
         return raw;
@@ -417,7 +417,7 @@
           level = 'warn';
           label = '경고';
           title = '갈등 가능성: 감지됨';
-          detail = '서버 예측(future_alerts / spikes)에 따라 갈등 위험 신호가 존재합니다.';
+          detail = '서버 예측에 따라 갈등 위험 신호가 존재합니다.';
         }
 
         const bothSides = alertedSpeakers.length >= 2;
@@ -452,13 +452,11 @@
           let speaker = 'Manual';
           let content = row.trim();
 
-          // 1) 우선 "화자: 발화" 형식을 최우선으로 파싱
           const m2 = content.match(/^([^:]{1,24})\s*:\s*(.*)$/);
           if (m2) {
             speaker = (m2[1] || '').trim() || 'Manual';
             content = (m2[2] || '').trim();
           } else {
-            // 2) 기존 호환: "[화자] 발화" 형식도 허용
             const m1 = content.match(/^\[([^\]]+)\]\s*(.*)$/);
             if (m1) {
               speaker = (m1[1] || '').trim() || 'Manual';
@@ -495,11 +493,6 @@
         }
       }
 
-      function colorForSpeaker(spk, index) {
-        const i = index % COLOR_PALETTE.length;
-        return COLOR_PALETTE[i];
-      }
-
       function colorForEmotion(emoKey, emotionKeys) {
         const idx = emotionKeys.indexOf(emoKey);
         const i = (idx >= 0 ? idx : 0) % COLOR_PALETTE.length;
@@ -517,13 +510,11 @@
         ctx.strokeStyle = '#ddd';
         ctx.lineWidth = 1;
 
-        // x-axis
         ctx.beginPath();
         ctx.moveTo(left, h - bottom);
         ctx.lineTo(w - right, h - bottom);
         ctx.stroke();
 
-        // y-axis
         ctx.beginPath();
         ctx.moveTo(left, top);
         ctx.lineTo(left, h - bottom);
@@ -541,16 +532,14 @@
           return;
         }
 
-        // ✅ 서버 응답은 per_utt_log에 시계열이 있음
         const series = (resultObj && Array.isArray(resultObj.per_utt_log)) ? resultObj.per_utt_log : [];
         if (!series.length) {
           ctx.fillStyle = '#666';
           ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
-          ctx.fillText('시계열(per_utt_log)이 비어 있습니다.', 14, 22);
+          ctx.fillText('시계열이 비어 있습니다.', 14, 22);
           return;
         }
 
-        // 선택 화자 필터
         const filtered = selectedSpeaker
           ? series.filter(function (it) { return String(it.speaker) === String(selectedSpeaker); })
           : series.slice();
@@ -562,7 +551,6 @@
           return;
         }
 
-        // 감정 키 추정(negative_emotions 우선, 없으면 emotions)
         const sample = filtered[0] || {};
         const emoObj = (sample.negative_emotions && typeof sample.negative_emotions === 'object')
           ? sample.negative_emotions
@@ -578,7 +566,6 @@
 
         drawAxes(left, top, right, bottom);
 
-        // ✅ 데이터 범위: 0~100 스케일
         const maxY = 100.0;
         const minY = 0.0;
 
@@ -593,7 +580,6 @@
           return (h - bottom) - t * (h - top - bottom);
         };
 
-        // 라인 + 점
         emotionKeys.forEach(function (ek) {
           ctx.beginPath();
           for (let i = 0; i < filtered.length; i++) {
@@ -632,12 +618,11 @@
         ctx.fillStyle = '#111';
         ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
         ctx.fillText(
-          'Speaker: ' + (selectedSpeaker ? String(selectedSpeaker) : 'ALL') + '  |  Top ' + String(emotionKeys.length) + ' emotions',
+          'Speaker: ' + String(selectedSpeaker) + '  |  Top ' + String(emotionKeys.length) + ' emotions',
           left,
           14
         );
 
-        // legend
         legendEl.innerHTML = '';
         emotionKeys.forEach(function (ek) {
           const item = document.createElement('div');
@@ -658,7 +643,6 @@
         const resultObj = lastResultObj;
         if (!resultObj || typeof resultObj !== 'object') return;
 
-        // ✅ 서버 응답은 per_utt_log에 화자들이 있음
         const series = (resultObj && Array.isArray(resultObj.per_utt_log)) ? resultObj.per_utt_log : [];
         const speakers = Array.from(new Set(series.map(function (it) { return String(it.speaker); })));
 
@@ -666,8 +650,7 @@
           selectedSpeaker = speakers[0];
         }
 
-
-        speakers.forEach(function (spk, idx) {
+        speakers.forEach(function (spk) {
           const chip = document.createElement('div');
           const active = (String(selectedSpeaker) === String(spk));
           chip.className = 'chip' + (active ? ' active' : '');
@@ -693,13 +676,11 @@
           });
 
           const data = await response.json();
-
           console.log('[ANALYZE] raw response json:', data);
 
           if (!response.ok) throw new Error(data.error || '알 수 없는 서버 오류');
 
           lastResultObj = data.result || null;
-
           console.log('[ANALYZE] result:', lastResultObj);
 
           rebuildSpeakerButtons();
@@ -732,18 +713,18 @@
             'result keys: ' + JSON.stringify(keysDebug) + '\n' +
             '갈등 판단(서버 기준): ' + decision.title + ' [' + decision.label + ']\n' +
             '요약: ' + decision.detail + '\n' +
-            '경고 건수(future_alerts): ' + String(decision.futureTotal) + '\n' +
+            '경고 건수: ' + String(decision.futureTotal) + '\n' +
             futureText;
 
           await renderHistoryPlusAnalysis();
         } catch (e) {
           console.error('[ANALYZE] error:', e);
-
           lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
           await renderHistoryPlusAnalysis();
         }
       }
 
+      // ✅ Enter로 분석 (기존 유지)
       textInput.addEventListener('keydown', function (e) {
         if (e.isComposing) return;
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -752,6 +733,14 @@
           if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
           sendAnalyzeSnapshot(lines).catch(function (err) { console.error(err); });
         }
+      });
+
+      // ✅ 버튼으로 분석 (추가)
+      analyzeBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        const lines = parseTextareaToLines(textInput.value);
+        if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+        sendAnalyzeSnapshot(lines).catch(function (err) { console.error(err); });
       });
 
       resetBtn.addEventListener('click', async function (event) {
@@ -777,7 +766,7 @@
           alertDetail.textContent = '';
           alertBadge.textContent = '대기';
 
-          setStatus('초기화 완료. 새 대화를 입력하세요. (Enter=분석, Shift+Enter=줄바꿈)', true);
+          setStatus('초기화 완료. 새 대화를 입력하세요.', true);
           textInput.value = '';
           lastSnapshotText = '';
 
@@ -796,7 +785,7 @@
           const resp = await fetch(API_URL + '/ping', { method: 'GET' });
           const data = await resp.json();
           if (!resp.ok) throw new Error(data.error || 'ping 실패');
-          setStatus('서버 연결 OK. 대화를 입력하세요. (Enter=분석, Shift+Enter=줄바꿈)', true);
+          setStatus('서버 연결 OK. 대화를 입력하세요.', true);
         } catch (e) {
           setStatus('서버 연결 실패: ' + e.message, false);
         }

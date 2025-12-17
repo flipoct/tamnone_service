@@ -478,12 +478,6 @@
         return lines;
       }
 
-      async function fetchHistory() {
-      }
-
-      async function renderHistoryPlusAnalysis() {
-      }
-
       function getSpeakersFromPerLog(perLog) {
         const s = new Set();
         perLog.forEach(function (u) {
@@ -667,7 +661,6 @@
 
       async function sendAnalyzeSnapshot(lines) {
         lastAnalysisBlock = '--- 분석 결과 ---\n(분석 중...)\n';
-        await renderHistoryPlusAnalysis();
 
         try {
           const response = await fetch(API_URL + '/analyze_snapshot?alpha=0.1&z=1.8&steps=3', {
@@ -715,10 +708,8 @@
             '경고 건수(future_alerts): ' + String(decision.futureTotal) + '\n' +
             futureText;
 
-          await renderHistoryPlusAnalysis();
         } catch (e) {
           lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
-          await renderHistoryPlusAnalysis();
         }
       }
 
@@ -737,7 +728,6 @@
         if (!confirm('서버의 대화 기록을 정말로 초기화하고 새로운 대화를 시작하시겠습니까?')) return;
 
         lastAnalysisBlock = '--- 분석 결과 ---\n(초기화 중...)\n';
-        await renderHistoryPlusAnalysis();
 
         try {
           const response = await fetch(API_URL + '/reset', { method: 'POST' });
@@ -763,7 +753,6 @@
           lastAnalysisBlock = '--- 분석 결과 ---\n오류 발생: ' + e.message + '\n';
         }
 
-        await renderHistoryPlusAnalysis();
       });
 
       async function maybeAutoAnalyzeFromSnapshot(msgObj) {
@@ -784,8 +773,7 @@
       // STT 관련 코드는 그대로 두되, 현재 mic 버튼은 주석 처리되어 있어 사용되지 않습니다.
       // (원본 유지 목적)
 
-      setStatus('초기화 중... (서버 /history 확인)', null);
-      renderHistoryPlusAnalysis();
+      setStatus('초기화 중... (서버 확인)', null);
       ctx.clearRect(0,0,canvas.width,canvas.height);
     });
   </script>

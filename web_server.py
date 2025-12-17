@@ -5,7 +5,7 @@ import ast
 import time
 import tempfile
 from gradio_client import Client
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
 # --- 설정 ---
@@ -63,6 +63,10 @@ try:
 except Exception as e:
     print(f"❌ 클라이언트 초기화 실패: {e}")
     client = None
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 # --- API 엔드포인트 ---
 @app.route('/analyze', methods=['POST'])

@@ -223,10 +223,10 @@
   <div class="container">
     <header>
       <h1>TeamCMD</h1>
-      <button class="mic-button" id="mic-btn" title="클릭: STT 시작/중지">
+      <!-- <button class="mic-button" id="mic-btn" title="클릭: STT 시작/중지">
         <span class="mic-dot"></span>
         <span id="mic-label">STT 시작</span>
-      </button>
+      </button> -->
     </header>
 
     <div class="statusline" id="statusline">초기화 중...</div>
@@ -887,8 +887,8 @@
         sttStream = null;
         sttWs = null;
 
-        micBtn.classList.remove('active');
-        micLabel.textContent = 'STT 시작';
+        {% comment %} micBtn.classList.remove('active'); {% endcomment %}
+        {% comment %} micLabel.textContent = 'STT 시작'; {% endcomment %}
 
         lastAnalysisBlock = '--- 분석 결과 ---\n(STT 중지됨)\n';
         setStatus('STT 중지됨', null);

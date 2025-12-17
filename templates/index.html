@@ -685,7 +685,7 @@
         await renderHistoryPlusAnalysis();
 
         try {
-          const response = await fetch(API_URL + '/analyze_snapshot', {
+          const response = await fetch(API_URL + '/analyze_snapshot?alpha=0.1&z=1.8&steps=3', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ lines: lines })

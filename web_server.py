@@ -71,6 +71,9 @@ def home():
 # --- API 엔드포인트 ---
 @app.route('/analyze', methods=['POST'])
 def analyze_text():
+    ALPHA = request.args.get('alpha')
+    Z = request.args.get('z')
+    STEPS = request.args.get('steps')
     if not client:
         return jsonify({"error": "API 클라이언트가 초기화되지 않았습니다."}), 500
 
@@ -107,6 +110,9 @@ def analyze_text():
 
 @app.route('/analyze_snapshot', methods=['POST'])
 def analyze_snapshot():
+    ALPHA = request.args.get('alpha')
+    Z = request.args.get('z')
+    STEPS = request.args.get('steps')
     if not client:
         return jsonify({"error": "API 클라이언트가 초기화되지 않았습니다."}), 500
 
